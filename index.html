@@ -21,7 +21,7 @@
     header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
     h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
     
-    .grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+    .grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
     @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
     
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
@@ -31,18 +31,18 @@
     .metric-val { font-size: 1.8rem; font-weight: 700; margin-top: 4px; color: var(--green); }
     
     label { font-size: 0.85rem; color: var(--text-mute); display: block; margin-top: 10px; margin-bottom: 4px; }
-    input { width: 100%; background: #090d16; border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; }
+    input { width: 100%; background: #090d16; border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; }
     button { width: 100%; background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; margin-top: 12px; cursor: pointer; }
     button:hover { opacity: 0.9; }
 
-    .ljse-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; align-items: center; }
-    .ljse-row span { font-size: 0.85rem; font-weight: 600; }
+    .ljse-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr; gap: 6px; margin-bottom: 8px; align-items: center; }
+    .ljse-row span { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
     th { color: var(--text-mute); font-weight: 500; }
     
-    .chart-container { position: relative; height: 300px; width: 100%; }
+    .chart-container { position: relative; height: 320px; width: 100%; }
   </style>
 </head>
 <body>
@@ -62,7 +62,7 @@
       <div class="metric-val" style="color:#3b82f6;" id="t212-value">0.00 €</div>
     </div>
     <div class="card" style="margin:0;">
-      <div class="card-title">NLB Trading Vrednost</div>
+      <div class="card-title">NLB Trading / LJSE</div>
       <div class="metric-val" style="color:#f59e0b;" id="nlb-value">0.00 €</div>
     </div>
   </div>
@@ -81,8 +81,8 @@
       </div>
 
       <div class="card">
-        <div class="card-title">NLB Trading (LJSE Delnice)</div>
-        <p style="font-size:0.75rem; color:var(--text-mute); margin-bottom:12px;">Vnesite število delnic in trenutni tečaj na LJSE:</p>
+        <div class="card-title">Slovenske Delnice in Obveznice</div>
+        <p style="font-size:0.75rem; color:var(--text-mute); margin-bottom:12px;">Uredi število kosov in tečaj na borzi:</p>
         
         <div class="ljse-row">
           <span>Krka (KRKG)</span>
@@ -100,14 +100,24 @@
           <input type="number" step="0.1" id="price-nlbr" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
         <div class="ljse-row">
-          <span>Luka Koper (LKPG)</span>
+          <span>Luka Koper</span>
           <input type="number" id="qty-lkpg" placeholder="Kosi" onchange="saveLjseData()" />
           <input type="number" step="0.1" id="price-lkpg" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
         <div class="ljse-row">
-          <span>Triglav (ZVTG)</span>
+          <span>Triglav</span>
           <input type="number" id="qty-zvtg" placeholder="Kosi" onchange="saveLjseData()" />
           <input type="number" step="0.1" id="price-zvtg" placeholder="Cena €" onchange="saveLjseData()" />
+        </div>
+        <div class="ljse-row">
+          <span>Obveznica RS96</span>
+          <input type="number" id="qty-rs96" placeholder="Kosi" onchange="saveLjseData()" />
+          <input type="number" step="1" id="price-rs96" placeholder="Cena €" onchange="saveLjseData()" />
+        </div>
+        <div class="ljse-row">
+          <span>Obveznica RS99</span>
+          <input type="number" id="qty-rs99" placeholder="Kosi" onchange="saveLjseData()" />
+          <input type="number" step="1" id="price-rs99" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
         <button onclick="renderAll()">Preračunaj Portfelj</button>
       </div>
@@ -143,13 +153,15 @@
 </div>
 
 <script>
-  // Privzeti tečaji LJSE (posodobljeni na dejanske tržne cene)
+  // Nastavljene vaše dejanske količine in tržne cene
   const defaultLjse = {
-    krkg: { name: 'Krka', qty: 50, price: 258.0 },
-    petg: { name: 'Petrol', qty: 100, price: 60.8 },
-    nlbr: { name: 'NLB', qty: 30, price: 228.0 },
-    lkpg: { name: 'Luka Koper', qty: 0, price: 38.5 },
-    zvtg: { name: 'Zavarovalnica Triglav', qty: 0, price: 39.0 }
+    krkg: { name: 'Krka (KRKG)', qty: 45, price: 258.0 },
+    petg: { name: 'Petrol (PETG)', qty: 247, price: 60.8 },
+    nlbr: { name: 'NLB (NLBR)', qty: 28, price: 228.0 },
+    lkpg: { name: 'Luka Koper (LKPG)', qty: 20, price: 38.5 },
+    zvtg: { name: 'Triglav (ZVTG)', qty: 209, price: 39.0 },
+    rs96: { name: 'Obveznice RS96', qty: 12, price: 1000.0 },
+    rs99: { name: 'Obveznice RS99', qty: 13, price: 1000.0 }
   };
 
   let chartInstance = null;
@@ -158,7 +170,12 @@
     document.getElementById('proxy-url').value = localStorage.getItem('t212_proxy') || '';
     document.getElementById('api-key').value = localStorage.getItem('t212_key') || '';
 
-    const savedLjse = JSON.parse(localStorage.getItem('ljse_data')) || defaultLjse;
+    let savedLjse = JSON.parse(localStorage.getItem('ljse_data'));
+    if (!savedLjse || !savedLjse.rs96) {
+      savedLjse = defaultLjse;
+      localStorage.setItem('ljse_data', JSON.stringify(defaultLjse));
+    }
+
     for (const key in savedLjse) {
       if (document.getElementById(`qty-${key}`)) {
         document.getElementById(`qty-${key}`).value = savedLjse[key].qty;
@@ -176,8 +193,16 @@
 
   function saveLjseData() {
     const ljseData = {};
-    const keys = ['krkg', 'petg', 'nlbr', 'lkpg', 'zvtg'];
-    const names = { krkg: 'Krka', petg: 'Petrol', nlbr: 'NLB', lkpg: 'Luka Koper', zvtg: 'Zavarovalnica Triglav' };
+    const keys = ['krkg', 'petg', 'nlbr', 'lkpg', 'zvtg', 'rs96', 'rs99'];
+    const names = { 
+      krkg: 'Krka (KRKG)', 
+      petg: 'Petrol (PETG)', 
+      nlbr: 'NLB (NLBR)', 
+      lkpg: 'Luka Koper (LKPG)', 
+      zvtg: 'Triglav (ZVTG)',
+      rs96: 'Obveznice RS96',
+      rs99: 'Obveznice RS99'
+    };
     
     keys.forEach(k => {
       ljseData[k] = {
@@ -251,48 +276,3 @@
         <td>${pos.source}</td>
         <td>${pos.qty}</td>
         <td>${pos.price.toFixed(2)} €</td>
-        <td><strong>${pos.total.toFixed(2)} €</strong></td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById('total-value').innerText = `${totalVal.toLocaleString('sl-SI', {minimumFractionDigits: 2})} €`;
-    document.getElementById('t212-value').innerText = `${t212Val.toLocaleString('sl-SI', {minimumFractionDigits: 2})} €`;
-    document.getElementById('nlb-value').innerText = `${nlbVal.toLocaleString('sl-SI', {minimumFractionDigits: 2})} €`;
-
-    renderChart(allPositions);
-  }
-
-  function renderChart(positions) {
-    const ctx = document.getElementById('portfolioChart').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-
-    const labels = positions.map(p => p.name);
-    const data = positions.map(p => p.total);
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#6366f1', '#14b8a6'];
-
-    chartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: colors.slice(0, positions.length),
-          borderWidth: 2,
-          borderColor: '#1e293b'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'right', labels: { color: '#f8fafc' } }
-        }
-      }
-    });
-  }
-
-  window.onload = init;
-</script>
-</body>
-</html>
