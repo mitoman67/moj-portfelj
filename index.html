@@ -1,1048 +1,298 @@
 <!DOCTYPE html>
-<html lang="sl" class="dark h-full">
+<html lang="sl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Moj Portfelj - Sledenje Naložbam</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moj Združen Portfelj</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #3b82f6;
+      --text: #f8fafc;
+      --text-mute: #94a3b8;
+      --border: #334155;
+      --green: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
     
-    <!-- PWA Primary Meta Tags -->
-    <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="Združen pregled naložb Trading 212 in NLB Trading (LJSE)">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Moj Portfelj">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/isometric/180/chart-line.png">
+    .grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
+    
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .card-title { font-size: 0.9rem; text-transform: uppercase; color: var(--text-mute); letter-spacing: 0.05em; margin-bottom: 12px; font-weight: 600; }
+    
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .metric-val { font-size: 1.8rem; font-weight: 700; margin-top: 4px; color: var(--green); }
+    
+    label { font-size: 0.85rem; color: var(--text-mute); display: block; margin-top: 10px; margin-bottom: 4px; }
+    input { width: 100%; background: #090d16; border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; }
+    button { width: 100%; background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; margin-top: 12px; cursor: pointer; }
+    button:hover { opacity: 0.9; }
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        slate: {
-                            850: '#131e32',
-                            900: '#0f172a',
-                            950: '#090d16',
-                        },
-                        brand: {
-                            blue: '#3b82f6',
-                            green: '#10b981',
-                            red: '#f43f5e',
-                            purple: '#8b5cf6',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Google Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Inline Web App Manifest Dynamic Generator -->
-    <script>
-        (function() {
-            const manifest = {
-                "name": "Moj Portfelj - Naložbe",
-                "short_name": "Portfelj",
-                "start_url": "./",
-                "display": "standalone",
-                "background_color": "#0f172a",
-                "theme_color": "#0f172a",
-                "orientation": "portrait-primary",
-                "icons": [
-                    {
-                        "src": "https://img.icons8.com/isometric/192/chart-line.png",
-                        "sizes": "192x192",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "https://img.icons8.com/isometric/512/chart-line.png",
-                        "sizes": "512x512",
-                        "type": "image/png"
-                    }
-                ]
-            };
-            const stringManifest = JSON.stringify(manifest);
-            const blob = new Blob([stringManifest], {type: 'application/json'});
-            const manifestURL = URL.createObjectURL(blob);
-            const link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = manifestURL;
-            document.head.appendChild(link);
-        })();
-    </script>
-
-    <style>
-        /* Custom UI Tweaks & Glassmorphic styling */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #090d16;
-            color: #f8fafc;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
+    .ljse-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .ljse-row span { font-size: 0.85rem; font-weight: 600; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { color: var(--text-mute); font-weight: 500; }
+    
+    .chart-container { position: relative; height: 300px; width: 100%; }
+  </style>
 </head>
-<body class="h-full flex flex-col justify-between overflow-x-hidden pb-20 lg:pb-6">
+<body>
 
-    <!-- Top Navigation Header -->
-    <header class="sticky top-0 z-30 glass-panel border-b border-slate-800 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-chart-pie text-white text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        Moj Portfelj
-                        <span id="pwaBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">PWA</span>
-                    </h1>
-                    <p class="text-xs text-slate-400">Trading 212 + NLB (LJSE)</p>
-                </div>
-            </div>
+<div class="container">
+  <header>
+    <h1>📈 Moj Združen Portfelj Naložb</h1>
+  </header>
 
-            <!-- Quick Controls -->
-            <div class="flex items-center gap-2">
-                <button id="btnRefresh" onclick="app.refreshAllData()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50" title="Osveži podatke">
-                    <i class="fa-solid fa-arrows-rotate text-sm" id="refreshIcon"></i>
-                </button>
-                <button onclick="app.openModal('settingsModal')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50" title="Nastavitve">
-                    <i class="fa-solid fa-gear text-sm"></i>
-                </button>
-            </div>
+  <div class="metrics">
+    <div class="card" style="margin:0;">
+      <div class="card-title">Skupna Vrednost</div>
+      <div class="metric-val" id="total-value">0.00 €</div>
+    </div>
+    <div class="card" style="margin:0;">
+      <div class="card-title">Trading 212 Vrednost</div>
+      <div class="metric-val" style="color:#3b82f6;" id="t212-value">0.00 €</div>
+    </div>
+    <div class="card" style="margin:0;">
+      <div class="card-title">NLB Trading Vrednost</div>
+      <div class="metric-val" style="color:#f59e0b;" id="nlb-value">0.00 €</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- STRANSKI MENI ZA VNOS PODATKOV -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="card-title">Trading 212 Povezava</div>
+        <label for="proxy-url">Cloudflare Worker Proxy URL:</label>
+        <input type="text" id="proxy-url" placeholder="https://moj-proxy.workers.dev/?url=" />
+        
+        <label for="api-key">API Ključ:</label>
+        <input type="password" id="api-key" placeholder="Prilepite T212 API ključ" />
+        <button onclick="saveSettings()">Shrani in Osveži T212</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">NLB Trading (LJSE Delnice)</div>
+        <p style="font-size:0.75rem; color:var(--text-mute); margin-bottom:12px;">Vnesite število delnic in trenutni tečaj na LJSE:</p>
+        
+        <div class="ljse-row">
+          <span>Krka (KRKG)</span>
+          <input type="number" id="qty-krkg" placeholder="Kosi" onchange="saveLjseData()" />
+          <input type="number" step="0.1" id="price-krkg" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto w-full px-4 pt-5 space-y-6 flex-1">
-
-        <!-- Top Summary Cards Grid -->
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            <!-- Card 1: Skupna Vrednost -->
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
-                <span class="text-xs font-medium text-slate-400 block mb-1">Skupna Vrednost</span>
-                <div class="text-xl md:text-2xl font-bold text-white tracking-tight" id="metricTotalVal">0.00 €</div>
-                <div class="mt-2 flex items-center text-xs font-semibold gap-1 text-emerald-400" id="metricTotalBadge">
-                    <i class="fa-solid fa-wallet text-[10px]"></i>
-                    <span>Združen portfelj</span>
-                </div>
-            </div>
-
-            <!-- Card 2: Skupni Dobiček / Izguba -->
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition"></div>
-                <span class="text-xs font-medium text-slate-400 block mb-1">Skupni Dobiček</span>
-                <div class="text-xl md:text-2xl font-bold text-emerald-400 tracking-tight" id="metricProfitVal">+0.00 €</div>
-                <div class="mt-2 flex items-center text-xs font-semibold gap-1 text-emerald-400" id="metricProfitPct">
-                    <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
-                    <span>+0.00%</span>
-                </div>
-            </div>
-
-            <!-- Card 3: Dnevna Sprememba -->
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition"></div>
-                <span class="text-xs font-medium text-slate-400 block mb-1">Dnevni Donos</span>
-                <div class="text-xl md:text-2xl font-bold text-white tracking-tight" id="metricDailyVal">+0.00 €</div>
-                <div class="mt-2 flex items-center text-xs font-semibold gap-1 text-emerald-400" id="metricDailyPct">
-                    <i class="fa-solid fa-caret-up text-[10px]"></i>
-                    <span>+0.00% danes</span>
-                </div>
-            </div>
-
-            <!-- Card 4: Skupaj Vloženo -->
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-slate-500/10 rounded-full blur-xl group-hover:bg-slate-500/20 transition"></div>
-                <span class="text-xs font-medium text-slate-400 block mb-1">Skupaj Vloženo</span>
-                <div class="text-xl md:text-2xl font-bold text-slate-200 tracking-tight" id="metricInvestedVal">0.00 €</div>
-                <div class="mt-2 flex items-center text-xs text-slate-400 gap-1">
-                    <i class="fa-solid fa-piggy-bank text-[10px]"></i>
-                    <span>Nabavna vrednost</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Content View Switcher Tabs (Desktop & Tablet) -->
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-                <button onclick="app.switchTab('tab-all')" id="nav-tab-all" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition bg-blue-600 text-white shadow-md">
-                    <i class="fa-solid fa-layer-group mr-1.5"></i>Vse Naložbe
-                </button>
-                <button onclick="app.switchTab('tab-ljse')" id="nav-tab-ljse" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-building-columns mr-1.5 text-emerald-400"></i>NLB (LJSE)
-                </button>
-                <button onclick="app.switchTab('tab-t212')" id="nav-tab-t212" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-bolt mr-1.5 text-sky-400"></i>Trading 212
-                </button>
-            </div>
-
-            <button onclick="app.openModal('addStockModal')" class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition active:scale-95 shadow-lg shadow-emerald-900/20">
-                <i class="fa-solid fa-plus"></i>
-                Dodaj NLB Delnico
-            </button>
+        <div class="ljse-row">
+          <span>Petrol (PETG)</span>
+          <input type="number" id="qty-petg" placeholder="Kosi" onchange="saveLjseData()" />
+          <input type="number" step="0.1" id="price-petg" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
-
-        <!-- TAB 1: OVERVIEW & ALL ASSETS -->
-        <div id="tab-all" class="tab-content space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Allocation Chart Panel -->
-                <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-blue-400"></i> Razporazdelitev Portfelja
-                        </h3>
-                        <span class="text-[11px] text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700/50" id="assetCountBadge">0 Naložb</span>
-                    </div>
-                    
-                    <div class="relative w-full aspect-square max-w-[260px] mx-auto flex items-center justify-center my-2">
-                        <canvas id="portfolioDonutChart"></canvas>
-                    </div>
-
-                    <div id="chartLegendList" class="mt-4 space-y-2 max-h-48 overflow-y-auto hide-scrollbar text-xs">
-                        <!-- Legend items injected via JS -->
-                    </div>
-                </div>
-
-                <!-- Assets Breakdown Table Panel -->
-                <div class="lg:col-span-2 glass-card p-5 rounded-2xl flex flex-col justify-between overflow-hidden">
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-list-ul text-emerald-400"></i> Pregled Naložb v Živo
-                            </h3>
-                            <div class="relative">
-                                <input type="text" id="tableSearch" onkeyup="app.filterTable()" placeholder="Išči naložbo..." class="bg-slate-900/90 text-xs text-slate-200 pl-8 pr-3 py-1.5 rounded-lg border border-slate-700/60 focus:outline-none focus:border-blue-500 w-36 sm:w-48">
-                                <i class="fa-solid fa-magnifying-glass text-slate-500 text-xs absolute left-2.5 top-2.5"></i>
-                            </div>
-                        </div>
-
-                        <!-- Table Wrapper -->
-                        <div class="overflow-x-auto hide-scrollbar">
-                            <table class="w-full text-left text-xs text-slate-300">
-                                <thead class="text-[11px] uppercase bg-slate-900/60 text-slate-400 border-b border-slate-800">
-                                    <tr>
-                                        <th class="py-2.5 px-3">Naložba</th>
-                                        <th class="py-2.5 px-3">Vir</th>
-                                        <th class="py-2.5 px-3 text-right">Količina</th>
-                                        <th class="py-2.5 px-3 text-right">Cena</th>
-                                        <th class="py-2.5 px-3 text-right">Vrednost</th>
-                                        <th class="py-2.5 px-3 text-right">Donos</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="assetsTableBody" class="divide-y divide-slate-800/60 font-medium">
-                                    <!-- Table Rows dynamic -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
-                        <span id="lastUpdatedText">Zadnja osvežitev: Pravkar</span>
-                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Vse cene so usklajene</span>
-                    </div>
-                </div>
-            </div>
+        <div class="ljse-row">
+          <span>NLB (NLBR)</span>
+          <input type="number" id="qty-nlbr" placeholder="Kosi" onchange="saveLjseData()" />
+          <input type="number" step="0.1" id="price-nlbr" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
-
-        <!-- TAB 2: NLB / LJSE MANAGEMENT -->
-        <div id="tab-ljse" class="tab-content hidden space-y-6">
-            <div class="glass-card p-5 rounded-2xl">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-building-columns text-emerald-400"></i> NLB Trading (Ljubljanska Borza)
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Urejanje količin in nabavnih cen za slovenske delnice (.LJ)</p>
-                    </div>
-                    <button onclick="app.openModal('addStockModal')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition active:scale-95 shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Dodaj Novo Delnico
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="ljseCardsContainer">
-                    <!-- Dynamic LJSE stock cards -->
-                </div>
-            </div>
+        <div class="ljse-row">
+          <span>Luka Koper (LKPG)</span>
+          <input type="number" id="qty-lkpg" placeholder="Kosi" onchange="saveLjseData()" />
+          <input type="number" step="0.1" id="price-lkpg" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
-
-        <!-- TAB 3: TRADING 212 INTEGRATION -->
-        <div id="tab-t212" class="tab-content hidden space-y-6">
-            <div class="glass-card p-5 rounded-2xl">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
-                    <div>
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-bolt text-sky-400"></i> Trading 212 Nastavitve in Sinhronizacija
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Povezava preko uradnega Trading 212 API ključa</p>
-                    </div>
-                    <span id="t212StatusBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                        Demo Način
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 space-y-4">
-                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
-                            <label class="block text-xs font-medium text-slate-300">Trading 212 API Ključ (Read-Only)</label>
-                            <div class="flex gap-2">
-                                <input type="password" id="t212ApiKeyInput" placeholder="Vnesi API ključ iz Trading 212 aplikacije..." class="flex-1 bg-slate-950 text-xs text-white px-3 py-2.5 rounded-lg border border-slate-700/80 focus:outline-none focus:border-blue-500 font-mono">
-                                <button onclick="app.saveApiKey()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition active:scale-95">
-                                    Shrani
-                                </button>
-                            </div>
-                            <p class="text-[11px] text-slate-400">API ključ pridobite v aplikaciji Trading 212 pod: <span class="text-slate-200">Settings → API (Beta)</span>. Potrebuje samo pravice za branje (History / Portfolio).</p>
-                        </div>
-
-                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
-                            <label class="block text-xs font-medium text-slate-300">CORS Posredniški Strežnik (CORS Proxy)</label>
-                            <input type="text" id="corsProxyInput" value="https://corsproxy.io/?" placeholder="https://corsproxy.io/?" class="w-full bg-slate-950 text-xs text-white px-3 py-2.5 rounded-lg border border-slate-700/80 focus:outline-none focus:border-blue-500 font-mono">
-                            <p class="text-[11px] text-slate-400">Zaradi varnostnih pravil brskalnika (CORS) je pri neposrednih klicih iz GitHub Pages potreben posrednik. Če API ne deluje, vklopite demo način spodaj.</p>
-                        </div>
-
-                        <div class="flex items-center justify-between p-4 bg-slate-900/80 rounded-xl border border-slate-800">
-                            <div>
-                                <h4 class="text-xs font-semibold text-white">Uporabi Demonstracijske Podatke za Trading 212</h4>
-                                <p class="text-[11px] text-slate-400">Simuliraj Trading 212 pozicije (S&P 500 ETF, VWCE, Apple, Tesla, Nvidia)</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="demoModeToggle" onchange="app.toggleDemoMode(this.checked)" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- T212 Active Holdings Summary -->
-                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800 space-y-3">
-                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">T212 Povzetek</h3>
-                        <div class="space-y-2 text-xs">
-                            <div class="flex justify-between py-1.5 border-b border-slate-800 text-slate-400">
-                                <span>Število pozicij:</span>
-                                <span id="t212CountText" class="font-bold text-white">0</span>
-                            </div>
-                            <div class="flex justify-between py-1.5 border-b border-slate-800 text-slate-400">
-                                <span>Skupna vrednost T212:</span>
-                                <span id="t212ValText" class="font-bold text-white">0.00 €</span>
-                            </div>
-                            <div class="flex justify-between py-1.5 text-slate-400">
-                                <span>Status API-ja:</span>
-                                <span id="t212ApiStatusText" class="font-semibold text-emerald-400">Pripravljen</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="ljse-row">
+          <span>Triglav (ZVTG)</span>
+          <input type="number" id="qty-zvtg" placeholder="Kosi" onchange="saveLjseData()" />
+          <input type="number" step="0.1" id="price-zvtg" placeholder="Cena €" onchange="saveLjseData()" />
         </div>
-
-    </main>
-
-    <!-- MODAL 1: Settings & Backup Modal -->
-    <div id="settingsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
-        <div class="glass-card w-full max-w-md p-5 rounded-2xl space-y-4 border border-slate-700">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-blue-400"></i> Nastavitve in Varnostna Kopija
-                </h3>
-                <button onclick="app.closeModal('settingsModal')" class="text-slate-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
-            </div>
-
-            <div class="space-y-3 text-xs">
-                <div class="p-3 bg-slate-900/80 rounded-xl space-y-2">
-                    <label class="font-medium text-slate-300 block">Izvozi / Uvozi podatke (JSON)</label>
-                    <p class="text-[11px] text-slate-400">Shranite vaše vnesene slovenske delnice in nastavitve v datoteko za prenos na drugo napravo.</p>
-                    <div class="flex gap-2 pt-1">
-                        <button onclick="app.exportBackup()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700 font-semibold text-center">
-                            <i class="fa-solid fa-download mr-1"></i> Izvozi
-                        </button>
-                        <label class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700 font-semibold text-center cursor-pointer">
-                            <i class="fa-solid fa-upload mr-1"></i> Uvozi
-                            <input type="file" id="importFile" onchange="app.importBackup(event)" class="hidden">
-                        </label>
-                    </div>
-                </div>
-
-                <div class="p-3 bg-slate-900/80 rounded-xl space-y-2">
-                    <label class="font-medium text-slate-300 block">Izbris vseh lokalnih podatkov</label>
-                    <button onclick="app.resetAllData()" class="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-lg transition font-semibold">
-                        <i class="fa-solid fa-trash-can mr-1"></i> Ponastavi Aplikacijo
-                    </button>
-                </div>
-            </div>
-
-            <div class="pt-2">
-                <button onclick="app.closeModal('settingsModal')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-xs transition">
-                    Zapri
-                </button>
-            </div>
-        </div>
+        <button onclick="renderAll()">Preračunaj Portfelj</button>
+      </div>
     </div>
 
-    <!-- MODAL 2: Add/Edit LJSE Stock Modal -->
-    <div id="addStockModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
-        <div class="glass-card w-full max-w-md p-5 rounded-2xl space-y-4 border border-slate-700">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-square-plus text-emerald-400"></i> Uredi / Dodaj NLB Delnico
-                </h3>
-                <button onclick="app.closeModal('addStockModal')" class="text-slate-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
-            </div>
-
-            <form id="stockForm" onsubmit="app.saveStockForm(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-slate-300 font-medium mb-1">Oznaka / Ticker (npr. KRKG.LJ)</label>
-                    <select id="formStockSelect" onchange="app.autofillStockDetails(this.value)" class="w-full bg-slate-950 text-white px-3 py-2.5 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500">
-                        <option value="KRKG.LJ">Krka d.d. (KRKG.LJ)</option>
-                        <option value="PETG.LJ">Petrol d.d. (PETG.LJ)</option>
-                        <option value="NLBR.LJ">NLB d.d. (NLBR.LJ)</option>
-                        <option value="LKPG.LJ">Luka Koper d.d. (LKPG.LJ)</option>
-                        <option value="ZVTG.LJ">Zavarovalnica Triglav (ZVTG.LJ)</option>
-                        <option value="EQTG.LJ">Equinox d.d. (EQTG.LJ)</option>
-                        <option value="CUSTOM">Po meri...</option>
-                    </select>
-                </div>
-
-                <div id="customTickerBox" class="hidden">
-                    <label class="block text-slate-300 font-medium mb-1">Vnesi Ticker ali Oznako</label>
-                    <input type="text" id="formCustomTicker" placeholder="npr. POSR.LJ ali AAPL" class="w-full bg-slate-950 text-white px-3 py-2.5 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div>
-                    <label class="block text-slate-300 font-medium mb-1">Ime Delnice ali Podjetja</label>
-                    <input type="text" id="formStockName" placeholder="npr. Krka d.d." required class="w-full bg-slate-950 text-white px-3 py-2.5 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-slate-300 font-medium mb-1">Količina (kosov)</label>
-                        <input type="number" step="any" id="formStockQty" placeholder="0" required class="w-full bg-slate-950 text-white px-3 py-2.5 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-slate-300 font-medium mb-1">Povprečna cena (€)</label>
-                        <input type="number" step="any" id="formStockBuyPrice" placeholder="0.00" required class="w-full bg-slate-950 text-white px-3 py-2.5 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-slate-300 font-medium mb-1">Trenutna tržna cena (€)</label>
-                    <input type="number" step="any" id="formStockCurrentPrice" placeholder="0.00" required class="w-full bg-slate-950 text-white px-3 py-2.5 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="app.closeModal('addStockModal')" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition">
-                        Prekliči
-                    </button>
-                    <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition shadow-lg shadow-emerald-900/30">
-                        Shrani Naložbo
-                    </button>
-                </div>
-            </form>
+    <!-- GLAVNI PRIKAZ -->
+    <div class="main-content">
+      <div class="card">
+        <div class="card-title">Razdelitev Portfelja (Krožni Izrez)</div>
+        <div class="chart-container">
+          <canvas id="portfolioChart"></canvas>
         </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Podrobna Tabela Pozicij</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Naložba</th>
+              <th>Vir</th>
+              <th>Količina</th>
+              <th>Cena / Kos</th>
+              <th>Skupna Vrednost</th>
+            </tr>
+          </thead>
+          <tbody id="portfolio-table">
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <!-- Mobile Navigation Bar (Fixed at bottom for mobile/Android PWA) -->
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-800 px-3 py-2">
-        <div class="flex items-center justify-around">
-            <button onclick="app.switchTab('tab-all')" id="mob-tab-all" class="mob-btn flex flex-col items-center gap-1 text-blue-400">
-                <i class="fa-solid fa-chart-line text-lg"></i>
-                <span class="text-[10px] font-medium">Portfelj</span>
-            </button>
-            <button onclick="app.switchTab('tab-ljse')" id="mob-tab-ljse" class="mob-btn flex flex-col items-center gap-1 text-slate-400">
-                <i class="fa-solid fa-building-columns text-lg"></i>
-                <span class="text-[10px] font-medium">NLB (LJSE)</span>
-            </button>
-            <button onclick="app.switchTab('tab-t212')" id="mob-tab-t212" class="mob-btn flex flex-col items-center gap-1 text-slate-400">
-                <i class="fa-solid fa-bolt text-lg"></i>
-                <span class="text-[10px] font-medium">Trading 212</span>
-            </button>
-            <button onclick="app.openModal('settingsModal')" class="mob-btn flex flex-col items-center gap-1 text-slate-400">
-                <i class="fa-solid fa-gear text-lg"></i>
-                <span class="text-[10px] font-medium">Nastavitve</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Toast Notification Container -->
-    <div id="toastContainer" class="fixed top-16 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <script>
-        /**
-         * Main Portfolio App Logic & Controller
-         */
-        class PortfolioApp {
-            constructor() {
-                // Initial Default State
-                this.state = {
-                    t212ApiKey: localStorage.getItem('t212_api_key') || '',
-                    corsProxy: localStorage.getItem('cors_proxy') || 'https://corsproxy.io/?',
-                    demoMode: localStorage.getItem('demo_mode') !== 'false', // Default true for first load
-                    ljseStocks: JSON.parse(localStorage.getItem('ljse_stocks')) || [
-                        { ticker: 'KRKG.LJ', name: 'Krka d.d.', quantity: 45, buyPrice: 122.50, currentPrice: 141.50 },
-                        { ticker: 'PETG.LJ', name: 'Petrol d.d.', quantity: 120, buyPrice: 23.80, currentPrice: 28.40 },
-                        { ticker: 'NLBR.LJ', name: 'NLB d.d.', quantity: 35, buyPrice: 98.00, currentPrice: 126.50 },
-                        { ticker: 'LKPG.LJ', name: 'Luka Koper d.d.', quantity: 50, buyPrice: 31.00, currentPrice: 38.20 }
-                    ],
-                    t212Holdings: [],
-                    activeTab: 'tab-all',
-                    chartInstance: null
-                };
-
-                // Demo T212 assets
-                this.demoT212Assets = [
-                    { ticker: 'VUAA', name: 'Vanguard S&P 500 ETF', quantity: 18.5, buyPrice: 82.40, currentPrice: 94.20, source: 'T212' },
-                    { ticker: 'VWCE', name: 'Vanguard All-World ETF', quantity: 24.0, buyPrice: 108.00, currentPrice: 121.50, source: 'T212' },
-                    { ticker: 'AAPL', name: 'Apple Inc.', quantity: 6.0, buyPrice: 185.00, currentPrice: 224.30, source: 'T212' },
-                    { ticker: 'TSLA', name: 'Tesla Inc.', quantity: 4.0, buyPrice: 220.00, currentPrice: 242.10, source: 'T212' }
-                ];
-
-                this.init();
-            }
-
-            init() {
-                // Restore settings UI
-                document.getElementById('t212ApiKeyInput').value = this.state.t212ApiKey;
-                document.getElementById('corsProxyInput').value = this.state.corsProxy;
-                document.getElementById('demoModeToggle').checked = this.state.demoMode;
-
-                // Register Service Worker for PWA
-                this.registerServiceWorker();
-
-                // Load and compute data
-                this.refreshAllData();
-
-                // Setup Chart
-                this.initChart();
-            }
-
-            async refreshAllData() {
-                const icon = document.getElementById('refreshIcon');
-                if (icon) icon.classList.add('fa-spin');
-
-                try {
-                    // Fetch or Load T212 assets
-                    if (this.state.demoMode || !this.state.t212ApiKey) {
-                        this.state.t212Holdings = [...this.demoT212Assets];
-                        document.getElementById('t212StatusBadge').innerText = 'Demo Način';
-                        document.getElementById('t212StatusBadge').className = 'px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30';
-                    } else {
-                        await this.fetchT212Portfolio();
-                    }
-
-                    // Attempt background refresh for LJSE stocks via Yahoo Finance fallback
-                    await this.refreshLJSEPrices();
-
-                    // Re-render UI Components
-                    this.renderSummaryMetrics();
-                    this.renderAssetsTable();
-                    this.renderLJSECards();
-                    this.updateChart();
-                    this.updateT212TabSummary();
-
-                    document.getElementById('lastUpdatedText').innerText = `Zadnja osvežitev: ${new Date().toLocaleTimeString('sl-SI')}`;
-                    this.showToast('Podatki uspešno osveženi', 'success');
-                } catch (err) {
-                    console.error('Refresh error:', err);
-                    this.showToast('Napaka pri osveževanju podatkov', 'error');
-                } finally {
-                    if (icon) icon.classList.remove('fa-spin');
-                }
-            }
-
-            async fetchT212Portfolio() {
-                const url = `${this.state.corsProxy}https://live.trading212.com/api/v0/equity/portfolio`;
-                try {
-                    const response = await fetch(url, {
-                        headers: {
-                            'Authorization': this.state.t212ApiKey
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        this.state.t212Holdings = data.map(item => ({
-                            ticker: item.ticker,
-                            name: item.ticker,
-                            quantity: item.quantity,
-                            buyPrice: item.averagePrice,
-                            currentPrice: item.currentPrice,
-                            source: 'T212'
-                        }));
-
-                        document.getElementById('t212StatusBadge').innerText = 'API Povezano';
-                        document.getElementById('t212StatusBadge').className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-                    } else {
-                        throw new Error(`HTTP Error: ${response.status}`);
-                    }
-                } catch (e) {
-                    console.warn('T212 API fetch failed, falling back to cached or demo mode', e);
-                    this.showToast('Ne morem dostopati do T212 API-ja. Preverite ključ/CORS.', 'error');
-                    this.state.t212Holdings = [...this.demoT212Assets];
-                }
-            }
-
-            async refreshLJSEPrices() {
-                // Simple attempt to fetch updated prices for .LJ stocks using Yahoo Finance CORS proxy
-                for (let stock of this.state.ljseStocks) {
-                    if (stock.ticker.endsWith('.LJ')) {
-                        try {
-                            const yfUrl = `${this.state.corsProxy}https://query1.finance.yahoo.com/v8/finance/chart/${stock.ticker}`;
-                            const res = await fetch(yfUrl);
-                            if (res.ok) {
-                                const json = await res.json();
-                                const price = json?.chart?.result?.[0]?.meta?.regularMarketPrice;
-                                if (price) {
-                                    stock.currentPrice = price;
-                                }
-                            }
-                        } catch (e) {
-                            // Silent fail, keep saved price
-                        }
-                    }
-                }
-                this.saveLJSEToStorage();
-            }
-
-            getAllAssets() {
-                const ljseMapped = this.state.ljseStocks.map(s => ({
-                    ...s,
-                    source: 'NLB'
-                }));
-                return [...ljseMapped, ...this.state.t212Holdings];
-            }
-
-            renderSummaryMetrics() {
-                const assets = this.getAllAssets();
-                let totalValue = 0;
-                let totalCost = 0;
-
-                assets.forEach(a => {
-                    totalValue += a.quantity * a.currentPrice;
-                    totalCost += a.quantity * a.buyPrice;
-                });
-
-                const totalProfit = totalValue - totalCost;
-                const profitPct = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
-                
-                // Estimate daily change (simulated ~0.6% daily oscillation based on overall portfolio)
-                const dailyProfit = totalValue * 0.0062;
-                const dailyPct = 0.62;
-
-                document.getElementById('metricTotalVal').innerText = this.formatEUR(totalValue);
-                
-                const profitEl = document.getElementById('metricProfitVal');
-                profitEl.innerText = `${totalProfit >= 0 ? '+' : ''}${this.formatEUR(totalProfit)}`;
-                profitEl.className = `text-xl md:text-2xl font-bold tracking-tight ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-                const profitPctEl = document.getElementById('metricProfitPct');
-                profitPctEl.innerHTML = `<i class="fa-solid fa-${totalProfit >= 0 ? 'arrow-trend-up' : 'arrow-trend-down'} text-[10px]"></i> <span>${totalProfit >= 0 ? '+' : ''}${profitPct.toFixed(2)}%</span>`;
-                profitPctEl.className = `mt-2 flex items-center text-xs font-semibold gap-1 ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-                document.getElementById('metricDailyVal').innerText = `+${this.formatEUR(dailyProfit)}`;
-                document.getElementById('metricInvestedVal').innerText = this.formatEUR(totalCost);
-                document.getElementById('assetCountBadge').innerText = `${assets.length} Naložb`;
-            }
-
-            renderAssetsTable() {
-                const assets = this.getAllAssets();
-                const tbody = document.getElementById('assetsTableBody');
-                tbody.innerHTML = '';
-
-                assets.forEach(asset => {
-                    const totalVal = asset.quantity * asset.currentPrice;
-                    const profit = totalVal - (asset.quantity * asset.buyPrice);
-                    const profitPct = (asset.quantity * asset.buyPrice) > 0 ? (profit / (asset.quantity * asset.buyPrice)) * 100 : 0;
-                    const isProfit = profit >= 0;
-
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-slate-800/40 transition border-b border-slate-800/40';
-                    row.innerHTML = `
-                        <td class="py-3 px-3">
-                            <div class="font-bold text-white">${asset.name}</div>
-                            <div class="text-[10px] text-slate-400 font-mono">${asset.ticker}</div>
-                        </td>
-                        <td class="py-3 px-3">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${asset.source === 'NLB' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-sky-500/20 text-sky-400 border border-sky-500/30'}">
-                                ${asset.source}
-                            </span>
-                        </td>
-                        <td class="py-3 px-3 text-right font-mono">${asset.quantity}</td>
-                        <td class="py-3 px-3 text-right font-mono">${this.formatEUR(asset.currentPrice)}</td>
-                        <td class="py-3 px-3 text-right font-bold text-white font-mono">${this.formatEUR(totalVal)}</td>
-                        <td class="py-3 px-3 text-right font-mono ${isProfit ? 'text-emerald-400' : 'text-rose-400'}">
-                            ${isProfit ? '+' : ''}${profitPct.toFixed(1)}%
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            renderLJSECards() {
-                const container = document.getElementById('ljseCardsContainer');
-                container.innerHTML = '';
-
-                this.state.ljseStocks.forEach((stock, idx) => {
-                    const totalVal = stock.quantity * stock.currentPrice;
-                    const profit = totalVal - (stock.quantity * stock.buyPrice);
-                    const profitPct = (stock.quantity * stock.buyPrice) > 0 ? (profit / (stock.quantity * stock.buyPrice)) * 100 : 0;
-                    const isProfit = profit >= 0;
-
-                    const card = document.createElement('div');
-                    card.className = 'bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3';
-                    card.innerHTML = `
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h4 class="font-bold text-white text-sm">${stock.name}</h4>
-                                <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">${stock.ticker}</span>
-                            </div>
-                            <button onclick="app.deleteLJSEStock(${idx})" class="text-slate-500 hover:text-rose-400 transition p-1" title="Izbriši">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-800/60">
-                            <div>
-                                <span class="text-[10px] text-slate-400 block">Količina</span>
-                                <span class="font-bold text-slate-200 font-mono">${stock.quantity} kos</span>
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-slate-400 block">Povpr. Cena</span>
-                                <span class="font-bold text-slate-200 font-mono">${this.formatEUR(stock.buyPrice)}</span>
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-slate-400 block">Trenutna Cena</span>
-                                <span class="font-bold text-white font-mono">${this.formatEUR(stock.currentPrice)}</span>
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-slate-400 block">Skupna Vrednost</span>
-                                <span class="font-bold text-white font-mono">${this.formatEUR(totalVal)}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[11px] text-slate-400">Dobiček:</span>
-                            <span class="font-bold ${isProfit ? 'text-emerald-400' : 'text-rose-400'}">
-                                ${isProfit ? '+' : ''}${this.formatEUR(profit)} (${profitPct.toFixed(1)}%)
-                            </span>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-
-            initChart() {
-                const ctx = document.getElementById('portfolioDonutChart').getContext('2d');
-                this.state.chartInstance = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: [],
-                        datasets: [{
-                            data: [],
-                            backgroundColor: [
-                                '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', 
-                                '#14b8a6', '#6366f1', '#f43f5e', '#06b6d4', '#a855f7'
-                            ],
-                            borderWidth: 2,
-                            borderColor: '#0f172a'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => {
-                                        const label = context.label || '';
-                                        const val = context.raw || 0;
-                                        return ` ${label}: ${this.formatEUR(val)}`;
-                                    }
-                                }
-                            }
-                        },
-                        cutout: '72%'
-                    }
-                });
-            }
-
-            updateChart() {
-                if (!this.state.chartInstance) return;
-
-                const assets = this.getAllAssets();
-                const labels = assets.map(a => a.name);
-                const values = assets.map(a => a.quantity * a.currentPrice);
-
-                this.state.chartInstance.data.labels = labels;
-                this.state.chartInstance.data.datasets[0].data = values;
-                this.state.chartInstance.update();
-
-                // Custom Legend List
-                const legendBox = document.getElementById('chartLegendList');
-                legendBox.innerHTML = '';
-                const totalVal = values.reduce((a, b) => a + b, 0);
-
-                assets.forEach((asset, i) => {
-                    const val = asset.quantity * asset.currentPrice;
-                    const pct = totalVal > 0 ? ((val / totalVal) * 100).toFixed(1) : 0;
-                    const color = this.state.chartInstance.data.datasets[0].backgroundColor[i % 10];
-
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center justify-between text-xs py-1 border-b border-slate-800/40';
-                    item.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${color}"></span>
-                            <span class="text-slate-300 font-medium truncate max-w-[120px]">${asset.name}</span>
-                        </div>
-                        <div class="font-mono text-slate-400">
-                            <span class="text-white font-bold">${pct}%</span> (${this.formatEUR(val)})
-                        </div>
-                    `;
-                    legendBox.appendChild(item);
-                });
-            }
-
-            updateT212TabSummary() {
-                const count = this.state.t212Holdings.length;
-                let total = 0;
-                this.state.t212Holdings.forEach(h => total += h.quantity * h.currentPrice);
-
-                document.getElementById('t212CountText').innerText = count;
-                document.getElementById('t212ValText').innerText = this.formatEUR(total);
-            }
-
-            saveStockForm(e) {
-                e.preventDefault();
-                const selectVal = document.getElementById('formStockSelect').value;
-                let ticker = selectVal === 'CUSTOM' ? document.getElementById('formCustomTicker').value : selectVal;
-                const name = document.getElementById('formStockName').value;
-                const qty = parseFloat(document.getElementById('formStockQty').value);
-                const buyPrice = parseFloat(document.getElementById('formStockBuyPrice').value);
-                const currentPrice = parseFloat(document.getElementById('formStockCurrentPrice').value);
-
-                if (!ticker || !name || isNaN(qty) || isNaN(buyPrice)) {
-                    this.showToast('Vnesite vsa zahtevana polja', 'error');
-                    return;
-                }
-
-                const existingIdx = this.state.ljseStocks.findIndex(s => s.ticker === ticker);
-                if (existingIdx >= 0) {
-                    this.state.ljseStocks[existingIdx] = { ticker, name, quantity: qty, buyPrice, currentPrice };
-                } else {
-                    this.state.ljseStocks.push({ ticker, name, quantity: qty, buyPrice, currentPrice });
-                }
-
-                this.saveLJSEToStorage();
-                this.closeModal('addStockModal');
-                this.refreshAllData();
-                this.showToast('Delnica uspešno shranjena', 'success');
-            }
-
-            autofillStockDetails(ticker) {
-                const customBox = document.getElementById('customTickerBox');
-                if (ticker === 'CUSTOM') {
-                    customBox.classList.remove('hidden');
-                    document.getElementById('formStockName').value = '';
-                    document.getElementById('formStockCurrentPrice').value = '';
-                    return;
-                }
-                customBox.classList.add('hidden');
-
-                const presets = {
-                    'KRKG.LJ': { name: 'Krka d.d.', price: 141.50 },
-                    'PETG.LJ': { name: 'Petrol d.d.', price: 28.40 },
-                    'NLBR.LJ': { name: 'NLB d.d.', price: 126.50 },
-                    'LKPG.LJ': { name: 'Luka Koper d.d.', price: 38.20 },
-                    'ZVTG.LJ': { name: 'Zavarovalnica Triglav', price: 39.00 },
-                    'EQTG.LJ': { name: 'Equinox d.d.', price: 58.00 }
-                };
-
-                if (presets[ticker]) {
-                    document.getElementById('formStockName').value = presets[ticker].name;
-                    document.getElementById('formStockCurrentPrice').value = presets[ticker].price;
-                }
-            }
-
-            deleteLJSEStock(idx) {
-                this.state.ljseStocks.splice(idx, 1);
-                this.saveLJSEToStorage();
-                this.refreshAllData();
-                this.showToast('Delnica izbrisana', 'success');
-            }
-
-            saveApiKey() {
-                const key = document.getElementById('t212ApiKeyInput').value;
-                const proxy = document.getElementById('corsProxyInput').value;
-                this.state.t212ApiKey = key;
-                this.state.corsProxy = proxy;
-                localStorage.setItem('t212_api_key', key);
-                localStorage.setItem('cors_proxy', proxy);
-                this.showToast('Nastavitve shranjene', 'success');
-                this.refreshAllData();
-            }
-
-            toggleDemoMode(enabled) {
-                this.state.demoMode = enabled;
-                localStorage.setItem('demo_mode', enabled);
-                this.refreshAllData();
-            }
-
-            saveLJSEToStorage() {
-                localStorage.setItem('ljse_stocks', JSON.stringify(this.state.ljseStocks));
-            }
-
-            exportBackup() {
-                const data = JSON.stringify(this.state, null, 2);
-                const blob = new Blob([data], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `portfelj-varnostna-kopija-${new Date().toISOString().slice(0, 10)}.json`;
-                a.click();
-            }
-
-            importBackup(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    try {
-                        const parsed = JSON.parse(evt.target.result);
-                        if (parsed.ljseStocks) {
-                            this.state.ljseStocks = parsed.ljseStocks;
-                            this.saveLJSEToStorage();
-                            this.refreshAllData();
-                            this.closeModal('settingsModal');
-                            this.showToast('Podatki uspešno uvoženi!', 'success');
-                        }
-                    } catch (err) {
-                        this.showToast('Napačna datoteka za uvoz', 'error');
-                    }
-                };
-                reader.readAsText(file);
-            }
-
-            resetAllData() {
-                localStorage.clear();
-                location.reload();
-            }
-
-            // Tab navigation
-            switchTab(tabId) {
-                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-                document.getElementById(tabId).classList.remove('hidden');
-
-                // Desktop style buttons
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.className = 'tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
-                });
-                const activeBtn = document.getElementById(`nav-${tabId}`);
-                if (activeBtn) activeBtn.className = 'tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition bg-blue-600 text-white shadow-md';
-
-                // Mobile style buttons
-                document.querySelectorAll('.mob-btn').forEach(btn => btn.className = 'mob-btn flex flex-col items-center gap-1 text-slate-400');
-                const activeMob = document.getElementById(`mob-${tabId}`);
-                if (activeMob) activeMob.className = 'mob-btn flex flex-col items-center gap-1 text-blue-400';
-
-                this.state.activeTab = tabId;
-            }
-
-            filterTable() {
-                const q = document.getElementById('tableSearch').value.toLowerCase();
-                const rows = document.querySelectorAll('#assetsTableBody tr');
-                rows.forEach(r => {
-                    const text = r.innerText.toLowerCase();
-                    r.style.display = text.includes(q) ? '' : 'none';
-                });
-            }
-
-            // Modal Controls
-            openModal(id) {
-                document.getElementById(id).classList.remove('hidden');
-            }
-            closeModal(id) {
-                document.getElementById(id).classList.add('hidden');
-            }
-
-            // Helpers
-            formatEUR(val) {
-                return new Intl.NumberFormat('sl-SI', { style: 'currency', currency: 'EUR' }).format(val || 0);
-            }
-
-            showToast(msg, type = 'info') {
-                const box = document.getElementById('toastContainer');
-                const toast = document.createElement('div');
-                toast.className = `px-4 py-2.5 rounded-xl text-xs font-semibold text-white shadow-xl pointer-events-auto transition duration-300 transform translate-y-2 flex items-center gap-2 border ${
-                    type === 'success' ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200' :
-                    type === 'error' ? 'bg-rose-950/90 border-rose-500/50 text-rose-200' :
-                    'bg-slate-800 border-slate-700 text-slate-200'
-                }`;
-                toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-info'}"></i> ${msg}`;
-                box.appendChild(toast);
-
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', '-translate-y-2');
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
-            }
-
-            registerServiceWorker() {
-                if ('serviceWorker' in navigator) {
-                    const swCode = `
-                        const CACHE_NAME = 'portfelj-v1';
-                        self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-                        self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-                        self.addEventListener('fetch', e => {
-                            e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                        });
-                    `;
-                    const blob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(blob);
-                    navigator.serviceWorker.register(swUrl).then(() => {
-                        document.getElementById('pwaBadge').classList.remove('hidden');
-                    }).catch(() => {});
-                }
-            }
-        }
-
-        // Global initialization
-        let app;
-        window.addEventListener('DOMContentLoaded', () => {
-            app = new PortfolioApp();
+  </div>
+</div>
+
+<script>
+  // Privzeti tečaji LJSE (posodobljeni na dejanske tržne cene)
+  const defaultLjse = {
+    krkg: { name: 'Krka', qty: 50, price: 258.0 },
+    petg: { name: 'Petrol', qty: 100, price: 60.8 },
+    nlbr: { name: 'NLB', qty: 30, price: 228.0 },
+    lkpg: { name: 'Luka Koper', qty: 0, price: 38.5 },
+    zvtg: { name: 'Zavarovalnica Triglav', qty: 0, price: 39.0 }
+  };
+
+  let chartInstance = null;
+
+  function init() {
+    document.getElementById('proxy-url').value = localStorage.getItem('t212_proxy') || '';
+    document.getElementById('api-key').value = localStorage.getItem('t212_key') || '';
+
+    const savedLjse = JSON.parse(localStorage.getItem('ljse_data')) || defaultLjse;
+    for (const key in savedLjse) {
+      if (document.getElementById(`qty-${key}`)) {
+        document.getElementById(`qty-${key}`).value = savedLjse[key].qty;
+        document.getElementById(`price-${key}`).value = savedLjse[key].price;
+      }
+    }
+    renderAll();
+  }
+
+  function saveSettings() {
+    localStorage.setItem('t212_proxy', document.getElementById('proxy-url').value.trim());
+    localStorage.setItem('t212_key', document.getElementById('api-key').value.trim());
+    renderAll();
+  }
+
+  function saveLjseData() {
+    const ljseData = {};
+    const keys = ['krkg', 'petg', 'nlbr', 'lkpg', 'zvtg'];
+    const names = { krkg: 'Krka', petg: 'Petrol', nlbr: 'NLB', lkpg: 'Luka Koper', zvtg: 'Zavarovalnica Triglav' };
+    
+    keys.forEach(k => {
+      ljseData[k] = {
+        name: names[k],
+        qty: parseFloat(document.getElementById(`qty-${k}`).value) || 0,
+        price: parseFloat(document.getElementById(`price-${k}`).value) || 0
+      };
+    });
+    localStorage.setItem('ljse_data', JSON.stringify(ljseData));
+  }
+
+  async function fetchT212() {
+    const proxy = localStorage.getItem('t212_proxy');
+    const apiKey = localStorage.getItem('t212_key');
+    if (!proxy || !apiKey) return [];
+
+    try {
+      const res = await fetch(`${proxy}https://live.trading212.com/api/v0/equity/portfolio`, {
+        headers: { 'Authorization': apiKey }
+      });
+      if (!res.ok) throw new Error('API Napaka');
+      const data = await res.json();
+      return data.map(item => ({
+        name: item.ticker,
+        source: 'Trading 212',
+        qty: item.quantity,
+        price: item.currentPrice,
+        total: item.quantity * item.currentPrice
+      }));
+    } catch (e) {
+      console.warn('Trading 212 fetch failed:', e);
+      return [];
+    }
+  }
+
+  function getLjsePositions() {
+    saveLjseData();
+    const ljseData = JSON.parse(localStorage.getItem('ljse_data')) || defaultLjse;
+    const positions = [];
+    for (const k in ljseData) {
+      if (ljseData[k].qty > 0) {
+        positions.push({
+          name: ljseData[k].name,
+          source: 'NLB Trading',
+          qty: ljseData[k].qty,
+          price: ljseData[k].price,
+          total: ljseData[k].qty * ljseData[k].price
         });
-    </script>
+      }
+    }
+    return positions;
+  }
+
+  async function renderAll() {
+    const t212Positions = await fetchT212();
+    const ljsePositions = getLjsePositions();
+    const allPositions = [...t212Positions, ...ljsePositions];
+
+    let totalVal = 0, t212Val = 0, nlbVal = 0;
+    const tbody = document.getElementById('portfolio-table');
+    tbody.innerHTML = '';
+
+    allPositions.forEach(pos => {
+      totalVal += pos.total;
+      if (pos.source === 'Trading 212') t212Val += pos.total;
+      if (pos.source === 'NLB Trading') nlbVal += pos.total;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${pos.name}</strong></td>
+        <td>${pos.source}</td>
+        <td>${pos.qty}</td>
+        <td>${pos.price.toFixed(2)} €</td>
+        <td><strong>${pos.total.toFixed(2)} €</strong></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('total-value').innerText = `${totalVal.toLocaleString('sl-SI', {minimumFractionDigits: 2})} €`;
+    document.getElementById('t212-value').innerText = `${t212Val.toLocaleString('sl-SI', {minimumFractionDigits: 2})} €`;
+    document.getElementById('nlb-value').innerText = `${nlbVal.toLocaleString('sl-SI', {minimumFractionDigits: 2})} €`;
+
+    renderChart(allPositions);
+  }
+
+  function renderChart(positions) {
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+
+    const labels = positions.map(p => p.name);
+    const data = positions.map(p => p.total);
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#6366f1', '#14b8a6'];
+
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors.slice(0, positions.length),
+          borderWidth: 2,
+          borderColor: '#1e293b'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { color: '#f8fafc' } }
+        }
+      }
+    });
+  }
+
+  window.onload = init;
+</script>
 </body>
 </html>
